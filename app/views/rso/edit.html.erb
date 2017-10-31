@@ -61,12 +61,24 @@
               <% end %>
               <tr>
                 <td width=30%><%= k.keyword %></td>
-                <td width=30%><%= text_field_tag "keyword_weights[" + k.id.to_s + "]", k.weight, class: "form-control", type: "text", form: "modify_rso" %></td>
-                <% if(@keyword_count == 0) %>
-                  <td class="text-danger" width=30%><%= @keyword_count %></td>
-                <% else %>
-                  <td width=30%><%= @keyword_count %></td>
-                <% end %>
+                <td width=30%>
+                  <div class="btn-group" data-toggle="buttons">
+                    <% (1..5).each do |num| %>
+                      <% if (num == k.weight) %>
+                        <label class="btn btn-primary answer-gradient active">
+                          <%= radio_button_tag "keyword_weights[" + k.id.to_s + "]", num %>
+                          <%= num %>
+                        </label>
+                      <% else %>
+                        <label class="btn btn-primary answer-gradient">
+                          <%= radio_button_tag "keyword_weights[" + k.id.to_s + "]", num %>
+                          <%= num %>
+                        </label>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+                <td width=30%><%= @keyword_count %></td>
                 <td width=10%>
                   <%= button_tag(type: "submit", class: "btn btn-block btn-danger") do %>
                     <i class="fa fa-trash-o" aria-hidden="true"></i>
@@ -80,7 +92,16 @@
             <%= hidden_field_tag(:rso_id, @rso.id) %>
             <tr>
               <td width=30%><%= select_tag(:keyword, options_for_select(@keywords), class: "form-control") %></td>
-              <td width=30%><%= text_field_tag :weight, "", class: "form-control", type: "text" %></td>
+              <td width=30%>
+                <div class="btn-group" data-toggle="buttons">
+                  <% (1..5).each do |num| %>
+                    <label class="btn btn-primary answer-gradient">
+                      <%= radio_button_tag "weight", num %>
+                      <%= num %>
+                    </label>
+                  <% end %>
+                </div>
+              </td>
               <td width=30%></td>
               <td width=10%>
                 <%= button_tag(type: "submit", class: "btn btn-block btn-success") do %>
