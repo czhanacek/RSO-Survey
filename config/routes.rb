@@ -42,6 +42,8 @@ Rails.application.routes.draw do
   post '/survey/edit_keyword', to: 'survey#edit_keyword'
   post '/survey/delete_keyword', to: 'survey#delete_keyword'
   get '/survey/results', to: "survey#results", as: "survey_results"
+  
+  post '/survey/email_results', to: "survey#email_results"
 
   root 'survey#index'
 

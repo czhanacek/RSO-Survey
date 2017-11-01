@@ -5,8 +5,10 @@
   </head>
   <body>
     <h1>Your RSO Survey Results</h1>
-    <p>
-        
-    </p>
+    <% for i in 0..(@rsos.count - 1) %>
+        <%= render partial: 'rso_result', :locals => {r: @rsos[i] } %>
+    <% end %>
+    <p>Click <%= link_to("here", survey_results_url(match_set_id: @match_set_id)) %> to view your results on the survey website </p>
+    <p>You are receiving this email because you requested that your RSO survey results be sent to you.</p>
   </body>
 </html>

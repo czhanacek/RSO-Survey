@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101091248) do
+ActiveRecord::Schema.define(version: 20171101112204) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,14 @@ ActiveRecord::Schema.define(version: 20171101091248) do
     t.integer "keyword_id", null: false
     t.integer "rso_id",     null: false
     t.index ["keyword_id", "rso_id"], name: "index_keywords_rsos_on_keyword_id_and_rso_id", using: :btree
+  end
+
+  create_table "match_sets", force: :cascade do |t|
+    t.integer "rso1_id"
+    t.integer "rso2_id"
+    t.integer "rso3_id"
+    t.integer "rso4_id"
+    t.integer "rso5_id"
   end
 
   create_table "officer_rsos", force: :cascade do |t|

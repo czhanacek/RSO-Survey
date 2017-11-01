@@ -91,7 +91,7 @@
           <%= form_tag({controller: "rso", action: "add_keyword"}, method: "post") do %>
             <%= hidden_field_tag(:rso_id, @rso.id) %>
             <tr>
-              <td width=30%><%= select_tag(:keyword, options_for_select(@keywords), class: "form-control") %></td>
+              <td width=30%><%= text_field_tag(:keyword, "",  class: "form-control") %></td>
               <td width=30%>
                 <div class="btn-group" data-toggle="buttons">
                   <% (1..5).each do |num| %>

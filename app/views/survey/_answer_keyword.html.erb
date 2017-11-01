@@ -44,7 +44,8 @@
                   <tr>
                     <%= hidden_field_tag(:keyword_id, k.id) %>
                     <%= hidden_field_tag(:question_id, q.id) %>
-                    <td style="width: 45%"><%= text_field_tag "keyword_titles[" + k.id.to_s + "]", k.keyword, type: "text", class: "form-control", form: "modify_question" %></td>
+                    <td style="width: 45%"><%= select_tag("keyword_titles[" + k.id.to_s + "]", options_for_select(@keywords, selected: k.keyword), class: "form-control") %>
+                    </td>
                     <td style="width: 45%">
                       <div class="btn-group" data-toggle="buttons">
                         <% (1..5).each do |num| %>
@@ -81,7 +82,7 @@
             <table class="table">
               <tbody>
                 <tr>
-                  <td style="width: 45%"><%= text_field_tag "new_keyword_title[" + a.id.to_s + "]", "", class: "form-control" %></td>
+                  <td style="width: 45%"><%= select_tag("new_keyword_title[" + a.id.to_s + "]", options_for_select(@keywords), class: "form-control") %></td>
                   <td style="width: 45%", data-toggle="buttons" class="btn-group">
                     <% (1..5).each do |num| %>
                       <label class="btn btn-primary answer-gradient">

@@ -9,7 +9,7 @@ class RsoController < ApplicationController
 
   def edit
     @rso = Rso.includes(:keywords).find(params[:id])
-    @keywords = Keyword.uniq.pluck(:keyword).sort!
+    
   end
 
   def bulk_upload
@@ -103,11 +103,59 @@ class RsoController < ApplicationController
 
   def bulk_upload_post
     csv = Csv.create(csvfile: params[:csv][:csvfile])
-    import = ImportRsoCSV.new(file: csv.csvfile)
-    if(import.valid_header?)
-      import.run!
+    new_count = 0
+    update_count = 0
+    CSV.foreach(csv.csvfile.path) do |row|
+      puts row.to_s
+      if(row[0] != "Name")
+        if(row[0] != nil) 
+          if(Rso.where("name = ?", row[0]).empty?)
+            Rso.create(name: row[0], nickname: row[1], website: row[2], description: row[3])
+            new_count += 1
+          else
+            Rso.where("name = ?", row[0]).update(name: row[0], nickname: row[1], website: row[2], description: row[3])
+            update_count += 1
+          end
+        end
+        if(row[4] != nil && row[5] != nil)
+          if(Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[4]).empty?)
+            Rso.where("name = ?", row[0]).first.keywords.create({keyword: row[4], weight: row[5]})
+          else
+            Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[4]).update(weight: row[5])
+          end
+        end
+        if(row[6] != nil && row[7] != nil)
+          if(Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[6]).empty?)
+            Rso.where("name = ?", row[0]).first.keywords.create({keyword: row[6], weight: row[7]})
+          else
+            Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[6]).update(weight: row[7])
+          end
+        end
+        if(row[8] != nil && row[9] != nil)
+          if(Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[8]).empty?)
+            Rso.where("name = ?", row[0]).first.keywords.create({keyword: row[8], weight: row[9]})
+          else
+            Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[8]).update(weight: row[9])
+          end
+        end
+        if(row[10] != nil && row[11] != nil)
+          if(Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[10]).empty?)
+            Rso.where("name = ?", row[0]).first.keywords.create({keyword: row[10], weight: row[11]})
+          else
+            Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[10]).update(weight: row[11])
+          end
+        end
+        if(row[12] != nil && row[13] != nil)
+          if(Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[12]).empty?)
+            Rso.where("name = ?", row[0]).first.keywords.create({keyword: row[12], weight: row[13]})
+          else
+            Rso.where("name = ?", row[0]).first.keywords.where("keyword = ?", row[12]).update(weight: row[13])
+          end
+        end
+      end
     end
-    flash[:success] = import.report.message.to_s
+    flash[:success] = "Updated: " + update_count.to_s + "\nNew: " + new_count.to_s
+    Csv.destroy_all
     redirect_to action: "bulk_upload"
   end
 end

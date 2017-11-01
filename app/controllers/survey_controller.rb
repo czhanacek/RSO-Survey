@@ -9,6 +9,7 @@ class SurveyController < ApplicationController
 
   def edit_question
     @q = Question.find(params[:id])
+    @keywords = Keyword.uniq.pluck(:keyword).sort!
   end
 
   # Doesn't return anything, also doesn't redirect when done
@@ -218,7 +219,7 @@ class SurveyController < ApplicationController
   def create_question
     @question = Question.create(question_title: params[:question_title])
     last_position = 0
-    if(Question.exists?)
+    if(Question.exists? && Question.all.order(position: :desc).first.position != nil)
       last_position = Question.all.order(position: :desc).first.position
     end
     if(params[:position] == "")
@@ -422,7 +423,24 @@ class SurveyController < ApplicationController
 
       # Rank the matches from highest to lowest.
       rso_match_strengths = rso_match_strengths.sort_by{ |rso_id, strength| strength}.reverse
-      results(rso_match_strengths)
+      match_set_id = []
+      if(rso_match_strengths[0][1] > 0)
+        match_set_id = MatchSet.create(rso1_id: rso_match_strengths[0][0])
+        if(rso_match_strengths[1][1] > 0)
+          match_set_id.update(rso2_id: rso_match_strengths[1][0])
+          if(rso_match_strengths[2][1] > 0)
+            match_set_id.update(rso3_id: rso_match_strengths[2][0])
+            if(rso_match_strengths[3][1] > 0)
+              match_set_id.update(rso4_id: rso_match_strengths[3][0])
+              if(rso_match_strengths[4][1] > 0)
+                match_set_id.update(rso5_id: rso_match_strengths[4][0])
+              end
+            end
+          end
+        end
+      end
+      
+      redirect_to action: "results", match_set_id: match_set_id.id
       #ResultsMailer.email_results("charlie.hanacek@wsu.edu").deliver_now
       
     else
@@ -431,11 +449,47 @@ class SurveyController < ApplicationController
     end
   end
 
-  def results(rsos)
-    @rsos = rsos
-    @rsos.map {|id, s| Rso.find(id)}
-    puts @rsos.inspect
-    render "results"
+  def results
+    match_set = MatchSet.find(params[:match_set_id])
+    @match_set_id = params[:match_set_id]
+    @rsos = []
+    if(match_set.rso1_id != nil)
+      @rsos += [Rso.find(match_set.rso1_id)]
+      if(match_set.rso2_id != nil)
+        @rsos += [Rso.find(match_set.rso2_id)]
+        if(match_set.rso3_id != nil)
+          @rsos += [Rso.find(match_set.rso3_id)]
+          if(match_set.rso4_id != nil)
+            @rsos += [Rso.find(match_set.rso4_id)]
+            if(match_set.rso5_id != nil)
+              @rsos += [Rso.find(match_set.rso5_id)]
+            end
+          end
+        end
+      end
+    end
   end
 
+  def email_results
+    match_set = MatchSet.find(params[:matchset_id])
+    @rsos = []
+    if(match_set.rso1_id != nil)
+      @rsos += [Rso.find(match_set.rso1_id)]
+      if(match_set.rso2_id != nil)
+        @rsos += [Rso.find(match_set.rso2_id)]
+        if(match_set.rso3_id != nil)
+          @rsos += [Rso.find(match_set.rso3_id)]
+          if(match_set.rso4_id != nil)
+            @rsos += [Rso.find(match_set.rso4_id)]
+            if(match_set.rso5_id != nil)
+              @rsos += [Rso.find(match_set.rso5_id)]
+            end
+          end
+        end
+      end
+    end
+    ResultsMailer.email_results(params[:email], @rsos, params[:matchset_id]).deliver_now
+    flash[:success] = "Email sent!"
+    redirect_to action: "results", match_set_id: params[:matchset_id]
+  end
 end
