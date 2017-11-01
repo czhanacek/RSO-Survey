@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   post '/rsos/delete_keyword', to: 'rso#delete_keyword'
   post '/rsos/add_officer', to: 'rso#add_officer'
   post '/rsos/delete_officer', to: 'rso#delete_officer'
+  post '/rsos/bulk_upload', to: "rso#bulk_upload_post", as: "rso_bulk_upload"
 
   get '/admin/manage', to: 'admin#manage'
   get '/admin', to: 'admin#index'

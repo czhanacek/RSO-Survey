@@ -41,6 +41,9 @@ gem "font-awesome-rails", '~> 4.7.0'
 # for importing csvs
 gem 'csv-importer'
 
+# for uploading files
+gem "carrierwave"
+
 # seed dump
 gem "seed_dump"
 # Use Capistrano for deployment

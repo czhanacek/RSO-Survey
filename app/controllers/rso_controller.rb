@@ -1,4 +1,5 @@
 class RsoController < ApplicationController
+  require "csv_upload"
   def index
   end
 
@@ -12,6 +13,7 @@ class RsoController < ApplicationController
   end
 
   def bulk_upload
+
   end
 
   def modify_rso
@@ -97,5 +99,15 @@ class RsoController < ApplicationController
     end
 
     redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
+  end
+
+  def bulk_upload_post
+    csv = Csv.create(csvfile: params[:csv][:csvfile])
+    import = ImportRsoCSV.new(file: csv.csvfile)
+    if(import.valid_header?)
+      import.run!
+    end
+    flash[:success] = import.report.message.to_s
+    redirect_to action: "bulk_upload"
   end
 end
