@@ -1,0 +1,27 @@
+<div class="row">
+  <div class="col-md-12">
+    <h3>Your Results</h3>
+    <p>Here are some RSOs to look into as you try to become more involved</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <% if flash[:success] %>
+        <div class="alert alert-success"><%= flash[:success] %></div>
+    <% end %>
+    <% if flash[:error] %>
+        <div class="alert alert-danger"><%= flash[:error] %></div>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <% if @rsos[0][1] > 0 %>
+        <% @rsos.each do |r| %>
+            <%= render partial: 'rso_result', :locals => {r => @r} %>
+        <% end %>
+    <% end %>
+  </div>
+</div>

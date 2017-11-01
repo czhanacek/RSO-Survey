@@ -422,36 +422,20 @@ class SurveyController < ApplicationController
 
       # Rank the matches from highest to lowest.
       rso_match_strengths = rso_match_strengths.sort_by{ |rso_id, strength| strength}.reverse
-      puts rso_match_strengths.size
-      i = 0
-      if(rso_match_strengths[i][1] == 0.to_f)
-        flash[:results] = "You didn't match with any clubs."
-      else
-        flash[:results] = "You matched with "
-        max_matches = 5
-        while i < max_matches && rso_match_strengths.size > i && rso_match_strengths[i][1] > 0
-          if(rso_match_strengths.size > i + 1)
-            if(rso_match_strengths[i + 1][1] == 0.0 || i == max_matches - 1)
-              flash[:results] += " and "
-            end
-          end
-          flash[:results] += Rso.find(rso_match_strengths[i][0]).name
-          # Uncomment the code below to append the match strength to the results
-          #flash[:results] += " (" + rso_match_strengths[i][1].to_s + ")"
-          if(rso_match_strengths.size > i + 1)
-            if(rso_match_strengths[i + 1][1] > 0 && i < max_matches - 1 )
-              flash[:results] += ", "
-            else
-              flash[:results] += "."
-            end
-          end
-          i += 1
-        end
-      end
+      results(rso_match_strengths)
+      #ResultsMailer.email_results("charlie.hanacek@wsu.edu").deliver_now
+      
     else
       flash[:error] = "You need to answer at least one survey question. Please try again."
+      redirect_to action: "index"
     end
-
-    redirect_to action: "index"
   end
+
+  def results(rsos)
+    @rsos = rsos
+    @rsos.map {|id, s| Rso.find(id)}
+    puts @rsos.inspect
+    render "results"
+  end
+
 end

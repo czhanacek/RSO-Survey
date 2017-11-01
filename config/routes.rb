@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   post '/survey/add_keyword', to: 'survey#add_keyword'
   post '/survey/edit_keyword', to: 'survey#edit_keyword'
   post '/survey/delete_keyword', to: 'survey#delete_keyword'
+  get '/survey/results', to: "survey#results", as: "survey_results"
 
   root 'survey#index'
 
