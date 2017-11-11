@@ -1,6 +1,7 @@
 class RsoController < ApplicationController
   require "csv_upload"
   def index
+    # A static page (that we don't even use...)
   end
 
   def manage
@@ -9,43 +10,91 @@ class RsoController < ApplicationController
 
   def edit
     @rso = Rso.includes(:keywords).find(params[:id])
-    
   end
 
-  def bulk_upload
-
+  def go_to_edit_rso
+    redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
   end
 
+  def go_to_rso_index
+    redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
+  end
+  # Directs action when a button on the rso_edit page is clicked
+  # Functions called in modify_rso should not contain a redirect_to
+  # or a render call.
   def modify_rso
-    rso = Rso.find(params[:rso_id])
-    flash[:success] = ""
-    flash[:error] = ""
-    rso.assign_attributes(name: params[:name], nickname: params[:nickname])
-    if defined? params["keyword_weights"].keys
-      params["keyword_weights"].keys.each do |k_id|
-        keyword = Keyword.find(k_id)
-        keyword.assign_attributes(weight: params[:keyword_weights][k_id])
-        if(keyword.valid?)
-          keyword.save
-          flash[:success] += "Keyword updated successfully."
-        else
-          flash[:error] += "Keyword " + keyword.keyword + " not updated: " + keyword.errors.full_messages.join(", ")
-        end
-      end
+    if(params[:edit_rso_attributes])
+      edit_rso_attributes(params)
+      go_to_edit_rso()
+    elsif(params[:delete_rso])
+      delete_rso(params)
+      go_to_rso_index()
+    elsif(params[:edit_keyword])
+      edit_keyword(params)
+      go_to_edit_rso()
+    elsif(params[:add_keyword])
+      add_keyword(params)
+      go_to_edit_rso()
+    elsif(params[:delete_keyword])
+      delete_keyword(params)
+      go_to_edit_rso()
     end
+  end
+
+  # Updates the attributes of the RSO
+  def edit_rso_attributes(params)
+    rso = Rso.find(params[:rso_id])
+    rso.update(name: params[:rso_name], nickname: params[:rso_nickname], website: params[:rso_website], description: params[:rso_description])
     if(rso.valid?)
       rso.save!
       flash[:success] = "RSO updated successfully."
     else
       flash[:error] += "RSO not updated: " + rso.errors.full_messages.join(", ")
     end
-    if(flash[:error] == "")
-      flash.delete("error")
+    
+  end
+
+  def delete_rso(params)
+    rso = Rso.find(params[:rso_id])
+    rso.destroy
+    if(rso.destroyed?)
+      flash[:success] = "RSO deleted successfully"
+    else
+      flash[:error] = "RSO not deleted"
     end
-    if(flash[:success] == "")
-      flash.delete("success")
+    redirect_to action: "manage"
+  end
+
+  def edit_keyword(params)
+    keyword = Keyword.find(params[:edit_keyword])
+    if(params[:keyword_weights])
+      keyword.update(weight: params[:keyword_weights][params[:edit_keyword]])
     end
-    redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
+    if(keyword.valid?)
+      keyword.save!
+      flash[:success] = "Keyword updated successfully. "
+    else
+      flash[:error] = "Keyword not updated: " + keyword.errors.full_messages.join(", ") + ". "
+    end
+  end
+  
+  def add_keyword(params)
+    new_keyword = Rso.find(params[:rso_id]).keywords.create({keyword: params[:new_keyword_title], weight: params[:new_keyword_weight]})
+    if(new_keyword.valid?)
+      flash[:success] = "Keyword added successfully to RSO"
+    else
+      flash[:error] = "Keyword not added to RSO: " + new_keyword.errors.full_messages.join(", ") + ". "
+    end
+  end
+
+  def delete_keyword(params)
+    # We want to delete this keyword rather than destroy it because we just want to remove its ties with the RSO.
+    Rso.find(params[:rso_id]).keywords.delete(params[:delete_keyword])
+    if(!(Rso.find(params[:rso_id]).keywords.where(id: params[:delete_keyword]).exists?))
+      flash[:success] = "Keyword deleted successfully. "
+    else
+      flash[:error] = "Keyword not deleted."
+    end
   end
 
   def create_rso
@@ -58,47 +107,13 @@ class RsoController < ApplicationController
     redirect_to action: "manage"
   end
 
-  def delete_rso
-    rso = Rso.find(params[:rso_id])
-    rso.destroy
-    if(rso.destroyed?)
-      flash[:success] = "RSO deleted successfully"
-    else
-      flash[:error] = "RSO not deleted"
-    end
-    redirect_to action: "manage"
+  def bulk_download
+    @rsos = Rso.all
+    send_data @rsos.to_csv, filename: "rso_survey_rsos.csv", disposition: "attachment", type: "text/csv"
   end
 
-  def add_keyword
-    new_keyword = Rso.find(params[:rso_id]).keywords.create({keyword: params[:keyword], weight: params[:weight]})
-    if(new_keyword.valid?)
-      flash[:success] = "Keyword added successfully to RSO"
-    else
-      flash[:error] = "Keyword not added to RSO: " + new_keyword.errors.full_messages.join(", ")
-    end
-    redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
-  end
-
-  def edit_keyword
-    keyword = Keyword.find(params[:keyword_id])
-    keyword.update(keyword: params[:keyword], weight: params[:weight])
-    if(keyword.valid?)
-      keyword.save!
-      flash[:success] = "Keyword updated successfully"
-    else
-      flash[:error] = "Keyword not updated: " + keyword.errors.full_messages.join(", ")
-    end
-  end
-
-  def delete_keyword
-    Rso.find(params[:rso_id]).keywords.delete(params[:keyword_id])
-    if(!(Rso.find(params[:rso_id]).keywords.where(id: params[:keyword_id]).exists?))
-      flash[:success] = "Keyword deleted successfully"
-    else
-      flash[:error] = "Keyword not deleted"
-    end
-
-    redirect_to controller: 'rso', action: 'edit', id: params[:rso_id]
+  def bulk_upload
+    # This is just a static page
   end
 
   def bulk_upload_post
