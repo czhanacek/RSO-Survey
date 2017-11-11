@@ -1,12 +1,13 @@
+<hr />
 <div class="row">
     <div class="col-md-12">
         <h4><%= r.name %> (<%= r.nickname %>)</h4>
-        <% if r.website != nil %>
-            <%= link_to(r.website) %>
+        <% if r.website != nil && r.website != "" %>
+            <a href="https://#{r.website}"><%= r.website%></a>
         <% else %>
             <p>No website listed</p>
         <% end %>
-        <% if r.description != nil %>
+        <% if r.description != nil && r.description != "" %>
             <p><%= r.description %></p>
         <% else %>
             <p>No description listed</p>
