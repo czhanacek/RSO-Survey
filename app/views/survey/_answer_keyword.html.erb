@@ -44,7 +44,8 @@
                   <tr>
                     <%= hidden_field_tag(:keyword_id, k.id) %>
                     <%= hidden_field_tag(:question_id, q.id) %>
-                    <td style="width: 45%"><%= select_tag("keyword_titles[" + k.id.to_s + "]", options_for_select(@keywords, selected: k.keyword), class: "form-control") %>
+                    <td style="width: 45%">
+                      <%= select_tag("keyword_titles[" + k.id.to_s + "]", options_for_select(@keywords, selected: k.keyword), class: "form-control") %>
                     </td>
                     <td style="width: 45%">
                       <div class="btn-group" data-toggle="buttons">

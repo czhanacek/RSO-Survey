@@ -1,0 +1,32 @@
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="btn-group">
+            <%= button_to category_index_path, :method => :get, :class => "btn btn-block btn-success", :disabled => CategoryGroup.all.empty? do %>
+                Back to categories
+            <% end %>
+            <%= button_to new_category_group_path, :method => :get, :class => "btn btn-block btn-success" do %>
+                New Category Group
+            <% end %>
+        </div>
+        <table class="table">
+            <thead class="table-danger">
+                <th>Category Group Name</th>
+                <th>Number of categories in this group</th>
+                <th></th>
+                <th></th>
+            </thead>
+            <% CategoryGroup.all.each do |c| %>
+                <tr>
+                    <td><%= c.title %></td>
+                    <td><%= c.categories.count %></td>
+                    <td>
+                        <%= button_to "Edit", {controller: "category", action: "edit_category_group", id: c.id}, :method => :get, :class => "btn btn-block btn-success" %>
+                    </td>
+                    <td><%= button_to "Delete", {controller: "category", action: "destroy_category_group", id: c.id}, :method => :post, :class => "btn btn-block btn-danger" %></td>
+                <tr>
+            <% end %>
+        </table>
+        
+    </div>
+<div>

@@ -1,0 +1,39 @@
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="btn-group">
+            <%= button_to new_category_path, :method => :get, :class => "btn btn-block btn-success", :disabled => CategoryGroup.all.empty? do %>
+                New Category
+            <% end %>
+            <%= button_to new_category_group_path, :method => :get, :class => "btn btn-block btn-success" do %>
+                New Category Group
+            <% end %>
+            <%= button_to category_group_index_path, :method => :get, :class => "btn btn-block btn-success", :disabled => CategoryGroup.all.empty? do %>
+                View category groups
+            <% end %>
+        </div>
+        <% if(@categories.empty?)%>
+            <h3>Uh oh! No categories exist. You should create some.</h3>
+        <% else %>
+            <table class="table">
+                <thead class="table-danger">
+                    <th>Category</th>
+                    <th>Category Group</th>
+                    <th>Question in Category</th>
+                    <th></th>
+                    <th></th>
+                </thead>
+                <% @categories.each do |c| %>
+                    <tr>
+                        <td><%= c.title %></td>
+                        <td><%= c.category_group.title %></td>
+                        <td><%= c.questions.count %>
+                        <td>edit button</td>
+                        <td>delete button</td>
+                    <tr>
+                <% end %>
+            </table>
+        <% end %>
+        
+    </div>
+<div>

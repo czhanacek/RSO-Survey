@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-md-12">
+    <%= form_tag({controller: "survey", action: "prelim1_submit"}, method: "post") do %>
+        <h3>Please select the types of RSOs that you are interested in:</h3>
+        <% @category_groups.each do |category_group| %>
+            <div class="form-check">
+                <h5>
+                    <%= label_tag category_group.title do%>
+                        <%= check_box_tag "category_groups[]", category_group.id %>
+                        <%= category_group.title %>
+                    <% end %>
+                </h5>
+            </div>
+        <% end %>
+    <br />
+      <%= submit_tag "Submit", class: "btn btn-success btn-lg btn-block" %>
+    <% end %>
+  </div>
+</div>

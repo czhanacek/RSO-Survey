@@ -14,6 +14,7 @@ class Question < ApplicationRecord
   
   validate :answer_limits
   has_many :answers, :dependent => :delete_all
+  belongs_to :category
 
 
 end

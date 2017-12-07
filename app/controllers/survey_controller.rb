@@ -1,7 +1,21 @@
 class SurveyController < ApplicationController
+
+  def prelim1
+    @category_groups = CategoryGroup.all
+    render "prelim_survey", layout: "survey"
+  end
+  def prelim1_submit
+    @categories = Category.where(category_group_id: params[:category_groups])
+    render "prelim2_survey", layout: "survey"
+  end
+
+  def prelim2_submit
+    @questions = Question.where(category_id: params[:categories]) + Question.where(category_id: -1)
+    render "index", layout: "survey"
+  end
   def index
     @questions = Question.order(:position)
-    render layout: "survey"
+    render "index", layout: "survey"
   end
 
   def new_question
@@ -9,7 +23,12 @@ class SurveyController < ApplicationController
 
   def edit_question
     @q = Question.find(params[:id])
+    if(@q.category == nil)
+      @q.category_id = -1
+    end
     @keywords = Keyword.uniq.pluck(:keyword).sort!
+    @categories = Category.all
+    
   end
 
   # Doesn't return anything, also doesn't redirect when done
@@ -49,7 +68,6 @@ class SurveyController < ApplicationController
   def update_answer_titles(answer_titles)
     answer_titles.keys.each do |answer_id|
       answer = Answer.find(answer_id)
-      puts("Ran update titles for " + answer.answer_title)
       answer.assign_attributes(answer_title: answer_titles[answer_id])
       if(answer.changed?)
         if(answer.valid?)
@@ -119,6 +137,10 @@ class SurveyController < ApplicationController
   def update_question_button(params)
     q = Question.find(params[:id])
     new_position = params[:position].to_i
+    new_category = params[:category].to_i
+    if(new_category == -1)
+      new_category = nil
+    end
     modify_question_position(q, new_position)
     # update answer titles
     update_answer_titles(params[:answer_titles])
@@ -130,7 +152,7 @@ class SurveyController < ApplicationController
     update_keyword_titles(params[:keyword_titles])
     # update keyword weights
     update_keyword_weights(params[:keyword_weights])
-    q.assign_attributes(:question_title => params[:question_title], :position => new_position)
+    q.assign_attributes(:question_title => params[:question_title], :position => new_position, :category_id => new_category)
     if(q.changed?)
       if(q.valid?)
         q.save
@@ -139,7 +161,6 @@ class SurveyController < ApplicationController
         flash[:error] += "Question not updated: " + q.errors.full_messages.join(", ")
       end
     end
-    puts("Flash success at end of update_question_button = " + flash[:success])
   end
   
   # directs button clicks on the edit_question page to their appropriate places
@@ -278,13 +299,13 @@ class SurveyController < ApplicationController
   end
 
   def add_keyword_button(params)
-    answer = Answer.find(params[:add_keyword])
+    answer = Answer.find(params[:add_keyword].to_int)
     answer.keywords.create(keyword: params[:new_keyword_title][params[:add_keyword]], weight: params[:new_keyword_weight][params[:add_keyword]])
     flash[:success] = "Keyword added successfully!"
   end
 
   def delete_question_button(params)
-    question = Question.find(params[:id])
+    question = Question.find(params[:id].to_int)
     @questionsAfter = Question.where("position >= ?", question.position).order(position: :desc)
     @questionsAfter.each do |q|
       q.position -= 1
@@ -301,8 +322,8 @@ class SurveyController < ApplicationController
     end
   end
 
-  def delete_answer_button(params)
-    answer = Answer.find(params[:id])
+  def delete_answer_button(answer_id)
+    answer = Answer.find(answer_id)
     question_id = answer.question_id
     answer.destroy
     if(answer.destroyed?)
@@ -318,7 +339,7 @@ class SurveyController < ApplicationController
   end
 
   def modify_answer
-    a = Answer.find(params[:id])
+    a = Answer.find(params[:id].to_int)
     old_position = a.position
     new_position = params[:position].to_i
     last_positio = Answer.all.order(position: :desc).first.position
@@ -378,6 +399,10 @@ class SurveyController < ApplicationController
     else
       flash[:error] = "Keyword not deleted: " + keyword.errors.full_messages.join(", ")
     end
+  end
+
+  def prelim_survey
+    @category_groups = CategoryGroup.all
   end
 
   def submit
@@ -471,6 +496,7 @@ class SurveyController < ApplicationController
   end
 
   def email_results
+    # TODO: Use a returned result from results method above to minimize repeated code
     match_set = MatchSet.find(params[:matchset_id])
     @rsos = []
     if(match_set.rso1_id != nil)

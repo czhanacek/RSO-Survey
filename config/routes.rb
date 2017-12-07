@@ -27,7 +27,7 @@ Rails.application.routes.draw do
 
   get '/admin/manage', to: 'admin#manage'
   get '/admin', to: 'admin#index'
-  get '/survey', to: 'survey#index'
+  get '/survey', to: 'survey#prelim1'
   get '/survey/manage', to: 'survey#manage'
   get '/survey/add_question', to: 'survey#new_question'
   get '/survey/question/:id', to: 'survey#edit_question', as: "edit_question"
@@ -43,9 +43,29 @@ Rails.application.routes.draw do
   post '/survey/edit_keyword', to: 'survey#edit_keyword'
   post '/survey/delete_keyword', to: 'survey#delete_keyword'
   get '/survey/results', to: "survey#results", as: "survey_results"
+
+  post '/survey/prelim1_submit', to: "survey#prelim1_submit"
+  post '/survey/prelim2_submit', to: "survey#prelim2_submit"
+  get '/survey/prelim1_submit', to: redirect('/')
+  get '/survey/prelim2_submit', to: redirect('/')
+
+
+  get '/survey/questions/categories', to: 'category#index', as: "category_index"
+  get '/survey/questions/new_category', to: 'category#new', as: "new_category"
+  post '/survey/questions/new_category', to: 'category#create'
+  get '/survey/questions/category/:id', to: 'category#edit', as: "edit_category"
+  post '/survey/questions/category/:id', to: 'category#update'
+  post '/survey/questions/delete_category', to: 'category#destroy', as: "destroy_category"
+
+  get '/survey/questions/category_groups', to: 'category#index_category_groups', as: "category_group_index"
+  get '/survey/questions/new_category_group', to: 'category#new_category_group', as: "new_category_group"
+  post '/survey/questions/new_category_group', to: 'category#create_category_group'
+  get '/survey/questions/category_group/:id', to: 'category#edit_category_group', as: "edit_category_group"
+  post '/survey/questions/category_group/:id', to: 'category#update_category_group'
+  post '/survey/questions/delete_category_group', to: 'category#destroy_category_group', as: "destroy_category_group"
   
   post '/survey/email_results', to: "survey#email_results"
 
-  root 'survey#index'
+  root 'survey#prelim1'
 
 end
