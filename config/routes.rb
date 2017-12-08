@@ -1,8 +1,5 @@
 Rails.application.routes.draw do
   devise_for :users
-  get    '/login',   to: 'sessions#new'
-  post   '/login',   to: 'sessions#create'
-  delete '/logout',  to: 'sessions#destroy'
 
   get '/officers', to: 'officer#index'
   get '/officers/manage', to: 'officer#manage'
@@ -43,7 +40,7 @@ Rails.application.routes.draw do
   post '/survey/edit_keyword', to: 'survey#edit_keyword'
   post '/survey/delete_keyword', to: 'survey#delete_keyword'
   get '/survey/results', to: "survey#results", as: "survey_results"
-
+  
   post '/survey/prelim1_submit', to: "survey#prelim1_submit"
   post '/survey/prelim2_submit', to: "survey#prelim2_submit"
   get '/survey/prelim1_submit', to: redirect('/')
@@ -65,6 +62,10 @@ Rails.application.routes.draw do
   post '/survey/questions/delete_category_group', to: 'category#destroy_category_group', as: "destroy_category_group"
   
   post '/survey/email_results', to: "survey#email_results"
+
+  get '/survey/bulk', to: 'survey#bulk_upload'
+  post '/survey/bulk_upload', to: "survey#bulk_upload_post", as: "survey_bulk_upload"
+  get '/survey/bulk_download', to: "survey#bulk_download", as: "survey_bulk_download"
 
   root 'survey#prelim1'
 

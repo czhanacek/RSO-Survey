@@ -22,7 +22,6 @@ class Rso < ApplicationRecord
         row << r.website
         row << r.description
         ks = r.keywords.limit(5)
-        puts ks.inspect
         if(ks.empty? == false)
           ks.each do |k|
             row << k.keyword

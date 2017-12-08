@@ -13,11 +13,13 @@ class CategoryController < ApplicationController
     end
 
     def destroy
-
+        Category.find(params[:id]).destroy
+        redirect_to controller: "category", action: "index"
     end
 
     def update
-
+        Category.find(params[:id]).update({title: params[:title], category_group_id: params[:category_group]})
+        redirect_to controller: "category", action: "index"
     end
 
     def edit

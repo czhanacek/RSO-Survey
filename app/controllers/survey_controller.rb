@@ -1,5 +1,5 @@
 class SurveyController < ApplicationController
-
+  before_filter :authenticate_user!, except: [:prelim1, :prelim1_submit, :prelim2_submit, :results, :email_results, :submit]
   def prelim1
     @category_groups = CategoryGroup.all
     render "prelim_survey", layout: "survey"
@@ -401,10 +401,6 @@ class SurveyController < ApplicationController
     end
   end
 
-  def prelim_survey
-    @category_groups = CategoryGroup.all
-  end
-
   def submit
     response = Response.create()
     if(params["question"])
@@ -517,5 +513,133 @@ class SurveyController < ApplicationController
     ResultsMailer.email_results(params[:email], @rsos, params[:matchset_id]).deliver_now
     flash[:success] = "Email sent!"
     redirect_to action: "results", match_set_id: params[:matchset_id]
+  end
+
+  def bulk_download
+    @questions = Question.all
+    send_data @questions.to_csv, filename: "rso_survey_questions.csv", disposition: "attachment", type: "text/csv"
+  end
+
+  def bulk_upload
+
+  end
+
+  def bulk_upload_post
+    if(params[:csv].nil?)
+      flash[:error] = "You need to select a CSV file to upload"
+    else
+      csv = Csv.create(csvfile: params[:csv][:csvfile])
+      new_count = 0
+      update_count = 0
+      CSV.foreach(csv.csvfile.path) do |row|
+        if(row[0] != "Question")
+          if(row[0] != nil) 
+            if(Question.where("question_title = ?", row[0]).empty?)
+              Question.create(question_title: row[0], position: row[1])
+            else
+              Question.where("question_title = ?", row[0]).update(position: row[1])
+            end
+            if(row[2] == "No category")
+              Question.where("question_title = ?", row[0]).update(category: nil)
+            else
+              if(CategoryGroup.where("title = ?", row[3]).empty?)
+                newcatgroup = CategoryGroup.create(title: row[3])
+                if(Category.where("title = ?", row[2]).empty?) # The user updated the Category Group of a Category to a Category Group not yet in the database
+                  newcat = Category.create(title: row[2], category_group: newcatgroup)
+                  Question.where("question_title = ?", row[0]).update(category: newcat)
+                  new_count += 1
+                else
+                  Category.where("title = ?", row[2]).update(category_group: newcatgroup)
+                end
+              else
+                if(Category.where("title = ?", row[2]).empty?) # The user updated the Category to a Category not yet in the database but the CategoryGroup already exists in the database
+                  newcat = Category.create(title: row[2], category_group: CategoryGroup.where("title = ?", row[3]).first)
+                  Question.where("question_title = ?", row[0]).update(category: newcat)
+                else
+                  Category.where("title = ?", row[2]).update(category_group: CategoryGroup.where("title = ?", row[3]).first)
+                end
+              end
+            end
+          end
+          # throw out the answers that existed previously
+          Question.where("question_title = ?", row[0]).first.answers.destroy_all
+          if(row[4] != "")
+            a = Answer.create(answer_title: row[4], position: 1, question: Question.where("question_title = ?", row[0]).first)
+            if(row[8] != nil && row[9] != nil)
+              Keyword.create(keyword: row[8], weight: row[9], answer_id: a.id)
+            end
+            if(row[10] != nil && row[11] != nil)
+              Keyword.create(keyword: row[10], weight: row[11], answer_id: a.id)
+            end
+            if(row[12] != nil && row[13] != nil)
+              Keyword.create(keyword: row[12], weight: row[13], answer_id: a.id)
+            end
+            if(row[14] != nil && row[15] != nil)
+              Keyword.create(keyword: row[14], weight: row[15], answer_id: a.id)
+            end
+            if(row[16] != nil && row[17] != nil)
+              Keyword.create(keyword: row[16], weight: row[17], answer_id: a.id)
+            end
+          end
+          if(row[5] != "")
+            a = Answer.create(answer_title: row[5], position: 2, question: Question.where("question_title = ?", row[0]).first)
+            if(row[18] != nil && row[19] != nil)
+              Keyword.create(keyword: row[18], weight: row[19], answer_id: a.id)
+            end
+            if(row[20] != nil && row[21] != nil)
+              Keyword.create(keyword: row[20], weight: row[21], answer_id: a.id)
+            end
+            if(row[22] != nil && row[23] != nil)
+              Keyword.create(keyword: row[22], weight: row[23], answer_id: a.id)
+            end
+            if(row[24] != nil && row[25] != nil)
+              Keyword.create(keyword: row[24], weight: row[25], answer_id: a.id)
+            end
+            if(row[26] != nil && row[27] != nil)
+              Keyword.create(keyword: row[26], weight: row[27], answer_id: a.id)
+            end
+          end
+          if(row[6] != "")
+            a = Answer.create(answer_title: row[6], position: 3, question: Question.where("question_title = ?", row[0]).first)
+            if(row[28] != nil && row[29] != nil)
+              Keyword.create(keyword: row[28], weight: row[29], answer_id: a.id)
+            end
+            if(row[30] != nil && row[31] != nil)
+              Keyword.create(keyword: row[30], weight: row[31], answer_id: a.id)
+            end
+            if(row[32] != nil && row[33] != nil)
+              Keyword.create(keyword: row[32], weight: row[33], answer_id: a.id)
+            end
+            if(row[34] != nil && row[35] != nil)
+              Keyword.create(keyword: row[34], weight: row[35], answer_id: a.id)
+            end
+            if(row[36] != nil && row[37] != nil)
+              Keyword.create(keyword: row[36], weight: row[37], answer_id: a.id)
+            end
+          end
+          if(row[7] != "")
+            a = Answer.create(answer_title: row[7], position: 4, question: Question.where("question_title = ?", row[0]).first)
+            if(row[38] != nil && row[39] != nil)
+              Keyword.create(keyword: row[38], weight: row[39], answer_id: a.id)
+            end
+            if(row[40] != nil && row[41] != nil)
+              Keyword.create(keyword: row[40], weight: row[41], answer_id: a.id)
+            end
+            if(row[42] != nil && row[43] != nil)
+              Keyword.create(keyword: row[42], weight: row[43], answer_id: a.id)
+            end
+            if(row[44] != nil && row[45] != nil)
+              Keyword.create(keyword: row[44], weight: row[45], answer_id: a.id)
+            end
+            if(row[46] != nil && row[47] != nil)
+              Keyword.create(keyword: row[46], weight: row[47], answer_id: a.id)
+            end
+          end
+        end
+      end
+      flash[:success] = "Upload successful"
+      Csv.destroy_all
+    end
+    redirect_to action: "bulk_upload"
   end
 end

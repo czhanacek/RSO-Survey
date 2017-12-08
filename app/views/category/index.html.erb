@@ -28,8 +28,12 @@
                         <td><%= c.title %></td>
                         <td><%= c.category_group.title %></td>
                         <td><%= c.questions.count %>
-                        <td>edit button</td>
-                        <td>delete button</td>
+                        <td>
+                            <%= button_to "Edit", {controller: "category", action: "edit", id: c.id}, :method => :get, :class => "btn btn-block btn-success" %>
+                        </td>
+                        <td>
+                            <%= button_to "Delete", {controller: "category", action: "destroy", id: c.id}, :method => :post, :class => "btn btn-block btn-danger" %>
+                        </td>
                     <tr>
                 <% end %>
             </table>

@@ -1,4 +1,5 @@
 class RsoController < ApplicationController
+  before_filter :authenticate_user!
   require "csv_upload"
   def index
     # A static page (that we don't even use...)

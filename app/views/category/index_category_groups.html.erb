@@ -23,7 +23,9 @@
                     <td>
                         <%= button_to "Edit", {controller: "category", action: "edit_category_group", id: c.id}, :method => :get, :class => "btn btn-block btn-success" %>
                     </td>
-                    <td><%= button_to "Delete", {controller: "category", action: "destroy_category_group", id: c.id}, :method => :post, :class => "btn btn-block btn-danger" %></td>
+                    <td>
+                        <%= button_to "Delete", {controller: "category", action: "destroy_category_group", id: c.id}, :method => :post, :class => "btn btn-block btn-danger" %>
+                    </td>
                 <tr>
             <% end %>
         </table>
